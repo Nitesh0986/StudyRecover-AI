@@ -1,564 +1,613 @@
 import RiskScore from "./RiskScore";
 import WeakTopics from "./WeakTopics";
 import ProgressCard from "./ProgressCard";
+import MLRiskCard from "./MLRiskCard";
 
-function Dashboard({ assessmentResults = [] }) {
-  // ==================================================
-  // 1. CHECK WHETHER AN ASSESSMENT HAS BEEN COMPLETED
-  // ==================================================
+function Dashboard({
+  assessmentResults = [],
+  onStartAssessment,
+  onOpenRecovery,
+}) {
+  // ============================================
+  // SCORE CALCULATIONS
+  // ============================================
 
-  const hasAssessment = assessmentResults.length > 0;
-
-
-  // ==================================================
-  // 2. CALCULATE OVERALL PERFORMANCE
-  // ==================================================
+  const totalQuestions = assessmentResults.length;
 
   const correctAnswers = assessmentResults.filter(
     (result) => result.isCorrect
   ).length;
 
-  const totalQuestions = assessmentResults.length;
+  const overallScore =
+    totalQuestions > 0
+      ? Math.round(
+          (correctAnswers / totalQuestions) * 100
+        )
+      : 0;
 
-  const overallPercentage = hasAssessment
-    ? Math.round(
-        (correctAnswers / totalQuestions) * 100
-      )
-    : 0;
+  // ============================================
+  // TOPIC PERFORMANCE
+  // ============================================
 
-
-  // ==================================================
-  // 3. CALCULATE LEARNING RISK
-  //
-  // Higher risk = weaker performance
-  // ==================================================
-
-  const learningRisk = hasAssessment
-    ? 100 - overallPercentage
-    : 0;
-
-
-  // ==================================================
-  // 4. CALCULATE TOPIC PERFORMANCE
-  // ==================================================
-
-  const topicData = {};
+  const topicPerformance = {};
 
   assessmentResults.forEach((result) => {
-    if (!topicData[result.topic]) {
-      topicData[result.topic] = {
+    if (!topicPerformance[result.topic]) {
+      topicPerformance[result.topic] = {
         correct: 0,
         total: 0,
       };
     }
 
-    topicData[result.topic].total += 1;
+    topicPerformance[result.topic].total += 1;
 
     if (result.isCorrect) {
-      topicData[result.topic].correct += 1;
+      topicPerformance[result.topic].correct += 1;
     }
   });
 
-
-  // ==================================================
-  // 5. CONVERT TOPIC DATA TO ARRAY
-  // ==================================================
-
-  const topics = Object.entries(topicData)
-    .map(([topic, data]) => {
-      const percentage = Math.round(
+  const topics = Object.entries(topicPerformance)
+    .map(([name, data]) => ({
+      name,
+      score: Math.round(
         (data.correct / data.total) * 100
-      );
+      ),
+      correct: data.correct,
+      total: data.total,
+    }))
+    .sort((a, b) => a.score - b.score);
 
-      return {
-        topic,
-        correct: data.correct,
-        total: data.total,
-        percentage,
-      };
-    })
-    .sort(
-      (a, b) => a.percentage - b.percentage
-    );
+  const weakestTopic = topics[0];
 
+  // ============================================
+  // FRIENDLY MESSAGES
+  // ============================================
 
-  // ==================================================
-  // 6. FIND WEAKEST TOPIC
-  // ==================================================
-
-  const weakestTopic = topics[0] || null;
-
-
-  // ==================================================
-  // 7. SELECT TOP 3 FOCUS AREAS
-  // ==================================================
-
-  const focusTopics = topics.slice(0, 3);
-
-
-  // ==================================================
-  // 8. HUMAN-FRIENDLY RISK MESSAGE
-  // ==================================================
-
-  let riskMessage = "Take your first assessment";
-
-  if (hasAssessment) {
-    if (learningRisk >= 60) {
-      riskMessage = "Let's strengthen the basics";
-    } else if (learningRisk >= 30) {
-      riskMessage = "A little more practice will help";
-    } else {
-      riskMessage = "You're building a strong foundation";
+  const getGreetingMessage = () => {
+    if (totalQuestions === 0) {
+      return "Take a short assessment and we'll figure out where to start.";
     }
-  }
 
+    if (overallScore >= 90) {
+      return "You're doing really well. Keep the momentum going!";
+    }
 
-  return (
-    <div className="max-w-7xl mx-auto">
+    if (overallScore >= 75) {
+      return "Nice work! A little more practice can make these topics stronger.";
+    }
 
-      {/* ==================================================
-          HEADER
-      ================================================== */}
+    if (overallScore >= 50) {
+      return "You're making progress. Let's strengthen a few areas.";
+    }
 
-      <div className="mb-10">
+    return "No worries — this is exactly what StudyRecover is here for.";
+  };
 
-        <p className="text-blue-400 text-sm font-semibold tracking-wide mb-2">
-          YOUR LEARNING SPACE
-        </p>
+  const getScoreMessage = () => {
+    if (overallScore >= 90) {
+      return "Excellent foundation";
+    }
 
-        <h1 className="text-3xl md:text-4xl font-bold text-white">
-          Welcome back 👋
-        </h1>
+    if (overallScore >= 75) {
+      return "Good foundation";
+    }
 
-        <p className="text-slate-400 mt-3">
-          {hasAssessment
-            ? "Here's what deserves your attention today."
-            : "Let's start by understanding where you stand."}
-        </p>
+    if (overallScore >= 50) {
+      return "Some areas need practice";
+    }
 
-      </div>
+    return "Let's build the foundation";
+  };
 
+  // ============================================
+  // EMPTY DASHBOARD
+  // ============================================
 
-      {/* ==================================================
-          QUICK SUMMARY
-      ================================================== */}
+  if (totalQuestions === 0) {
+    return (
+      <div className="max-w-6xl mx-auto">
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+        {/* Welcome */}
 
-        {/* Learning Health */}
+        <section className="mb-10">
 
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition">
-
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">
-            Learning health
+          <p className="text-blue-400 text-sm font-medium mb-3">
+            YOUR LEARNING SPACE
           </p>
 
-          <div className="flex items-center justify-between mt-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+            Let's figure out where you are.
+          </h1>
 
-            <div>
+          <p className="text-slate-400 mt-4 max-w-2xl leading-relaxed">
+            Everyone gets stuck sometimes. Take a quick
+            assessment and we'll help you find the topics
+            that deserve your attention.
+          </p>
 
-              <p className="text-3xl font-bold text-white">
+        </section>
 
-                {hasAssessment
-                  ? `${overallPercentage}%`
-                  : "--"}
+        {/* Start Assessment */}
 
-              </p>
+        <section className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-10 mb-8">
 
-              <p
-                className={`text-sm mt-2 ${
-                  hasAssessment
-                    ? learningRisk >= 60
-                      ? "text-red-400"
-                      : learningRisk >= 30
-                      ? "text-orange-400"
-                      : "text-green-400"
-                    : "text-slate-500"
-                }`}
-              >
-                {riskMessage}
+          <div className="max-w-2xl">
+
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-2xl mb-6">
+              🧭
+            </div>
+
+            <h2 className="text-2xl font-semibold text-white">
+              Start with a quick check-in
+            </h2>
+
+            <p className="text-slate-400 mt-3 leading-relaxed">
+              We'll ask you a few questions about your
+              current knowledge. There are no grades here —
+              the goal is simply to understand where you
+              need help.
+            </p>
+
+            <button
+              type="button"
+              onClick={onStartAssessment}
+              className="mt-7 inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium transition-all duration-200"
+            >
+              Take Assessment
+              <span className="ml-2">→</span>
+            </button>
+
+          </div>
+
+        </section>
+
+        {/* How It Works */}
+
+        <section>
+
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-4">
+            HOW IT WORKS
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
+
+              <span className="text-2xl">
+                📝
+              </span>
+
+              <h3 className="text-white font-medium mt-4">
+                Check your understanding
+              </h3>
+
+              <p className="text-slate-500 text-sm mt-2 leading-relaxed">
+                Answer a few questions about the topics
+                you're learning.
               </p>
 
             </div>
 
-            {hasAssessment && (
-              <div className="w-12 h-12 rounded-full border-4 border-blue-400/30 flex items-center justify-center">
+            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
 
-                <span className="text-blue-400 text-xs font-semibold">
-                  {overallPercentage}%
-                </span>
-
-              </div>
-            )}
-
-          </div>
-
-        </div>
-
-
-        {/* Today's Focus */}
-
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition">
-
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">
-            Today's focus
-          </p>
-
-          {weakestTopic ? (
-            <>
-              <h2 className="text-xl font-semibold text-white mt-4">
-                {weakestTopic.topic}
-              </h2>
-
-              <p className="text-slate-400 text-sm mt-2">
-                This is currently your weakest area.
-              </p>
-
-              <div className="mt-4 w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-
-                <div
-                  className="h-full bg-red-400 rounded-full"
-                  style={{
-                    width: `${weakestTopic.percentage}%`,
-                  }}
-                />
-
-              </div>
-
-              <p className="text-red-400 text-xs mt-2">
-                {weakestTopic.percentage}% confidence
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className="text-xl font-semibold text-white mt-4">
-                No focus area yet
-              </h2>
-
-              <p className="text-slate-400 text-sm mt-2">
-                Complete an assessment and we'll find your
-                priority topic.
-              </p>
-            </>
-          )}
-
-        </div>
-
-
-        {/* Assessment Progress */}
-
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition">
-
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">
-            Assessment progress
-          </p>
-
-          <div className="flex items-end gap-2 mt-4">
-
-            <h2 className="text-3xl font-bold text-white">
-              {hasAssessment
-                ? `${correctAnswers}/${totalQuestions}`
-                : "--"}
-            </h2>
-
-            {hasAssessment && (
-              <span className="text-green-400 text-sm mb-1">
-                correct
+              <span className="text-2xl">
+                🔎
               </span>
-            )}
+
+              <h3 className="text-white font-medium mt-4">
+                Find the gaps
+              </h3>
+
+              <p className="text-slate-500 text-sm mt-2 leading-relaxed">
+                We'll identify the areas where you could
+                use some extra practice.
+              </p>
+
+            </div>
+
+            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
+
+              <span className="text-2xl">
+                🌱
+              </span>
+
+              <h3 className="text-white font-medium mt-4">
+                Work at your pace
+              </h3>
+
+              <p className="text-slate-500 text-sm mt-2 leading-relaxed">
+                Practice, see your progress, and adjust
+                your plan as you improve.
+              </p>
+
+            </div>
 
           </div>
 
-          <p className="text-slate-400 text-sm mt-2">
-            {hasAssessment
-              ? "Based on your latest assessment."
-              : "Complete an assessment to see your progress."}
-          </p>
-
-        </div>
+        </section>
 
       </div>
+    );
+  }
 
+  // ============================================
+  // MAIN DASHBOARD
+  // ============================================
 
-      {/* ==================================================
-          LEARNING PICTURE
-      ================================================== */}
+  return (
+    <div className="max-w-6xl mx-auto">
 
-      <div className="mb-8">
+      {/* ========================================
+          HEADER
+      ======================================== */}
 
-        <div className="mb-5">
+      <section className="mb-8">
 
-          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide">
-            Your learning picture
+        <p className="text-blue-400 text-sm font-medium mb-3">
+          YOUR LEARNING SPACE
+        </p>
+
+        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+          Welcome back 👋
+        </h1>
+
+        <p className="text-slate-400 mt-3 max-w-2xl leading-relaxed">
+          {getGreetingMessage()}
+        </p>
+
+      </section>
+
+      {/* ========================================
+          SCORE SNAPSHOT
+      ======================================== */}
+
+      <section className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 mb-6">
+
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+
+          <div>
+
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">
+              YOUR SNAPSHOT
+            </p>
+
+            <div className="flex items-end gap-3 mt-3">
+
+              <span className="text-5xl font-bold text-white tracking-tight">
+                {overallScore}%
+              </span>
+
+              <span className="text-slate-400 text-sm mb-2">
+                overall performance
+              </span>
+
+            </div>
+
+            <p className="text-slate-300 mt-3">
+              {getScoreMessage()}
+            </p>
+
+          </div>
+
+          {/* Small stats */}
+
+          <div className="grid grid-cols-3 gap-6 lg:gap-10">
+
+            <div>
+              <p className="text-2xl font-semibold text-white">
+                {correctAnswers}
+              </p>
+
+              <p className="text-slate-500 text-sm mt-1">
+                correct
+              </p>
+            </div>
+
+            <div>
+              <p className="text-2xl font-semibold text-white">
+                {totalQuestions}
+              </p>
+
+              <p className="text-slate-500 text-sm mt-1">
+                answered
+              </p>
+            </div>
+
+            <div>
+              <p className="text-2xl font-semibold text-white">
+                {topics.length}
+              </p>
+
+              <p className="text-slate-500 text-sm mt-1">
+                topics
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* ========================================
+          RECOMMENDED STARTING POINT
+      ======================================== */}
+
+      {weakestTopic && (
+        <section className="bg-blue-500/5 border border-blue-500/15 rounded-3xl p-6 mb-8">
+
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+
+            <div>
+
+              <p className="text-blue-400 text-xs font-semibold uppercase tracking-wider">
+                A GOOD PLACE TO START
+              </p>
+
+              <h2 className="text-xl font-semibold text-white mt-2">
+                Spend some time on {weakestTopic.name}
+              </h2>
+
+              <p className="text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">
+                This is currently your lowest-performing
+                topic. A focused practice session could help
+                strengthen it.
+              </p>
+
+            </div>
+
+            <button
+              type="button"
+              onClick={onOpenRecovery}
+              className="shrink-0 inline-flex items-center justify-center px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-all duration-200"
+            >
+              View Recovery Plan
+              <span className="ml-2">
+                →
+              </span>
+            </button>
+
+          </div>
+
+        </section>
+      )}
+
+      {/* ========================================
+          TOPICS
+      ======================================== */}
+
+      <section className="mb-8">
+
+        <div className="mb-4">
+
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">
+            YOUR TOPICS
           </p>
 
           <h2 className="text-xl font-semibold text-white mt-1">
-            Where you stand right now
+            How things are going
           </h2>
 
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {topics.map((topic) => {
 
-          {/* Existing components remain here */}
-          <RiskScore />
+            const isWeak = topic.score < 50;
 
-          <WeakTopics />
+            const isOkay =
+              topic.score >= 50 &&
+              topic.score < 75;
 
-          <ProgressCard />
-
-        </div>
-
-      </div>
-
-
-      {/* ==================================================
-          FOCUS AREAS
-      ================================================== */}
-
-      {hasAssessment && focusTopics.length > 0 && (
-
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 mb-8">
-
-          <div className="mb-6">
-
-            <p className="text-blue-400 text-xs font-semibold uppercase tracking-wide">
-              WHAT NEEDS ATTENTION
-            </p>
-
-            <h2 className="text-2xl font-semibold text-white mt-1">
-              Your focus areas
-            </h2>
-
-            <p className="text-slate-400 text-sm mt-2">
-              Start with the areas where your confidence is lowest.
-            </p>
-
-          </div>
-
-
-          <div className="space-y-4">
-
-            {focusTopics.map((topic, index) => (
-
+            return (
               <div
-                key={topic.topic}
-                className="flex items-center gap-4 bg-slate-800/70 rounded-xl p-4"
+                key={topic.name}
+                className="bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition-colors"
               >
 
-                {/* Number */}
+                <div className="flex items-center justify-between gap-3">
 
-                <div className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center shrink-0">
+                  <h3 className="text-white font-medium">
+                    {topic.name}
+                  </h3>
 
-                  <span className="text-slate-300 text-sm font-semibold">
-                    {index + 1}
+                  <span
+                    className={`text-sm font-semibold ${
+                      isWeak
+                        ? "text-red-400"
+                        : isOkay
+                        ? "text-orange-400"
+                        : "text-green-400"
+                    }`}
+                  >
+                    {topic.score}%
                   </span>
 
                 </div>
 
-
-                {/* Topic */}
-
-                <div className="flex-1">
-
-                  <div className="flex items-center justify-between mb-2">
-
-                    <h3 className="text-white font-medium">
-                      {topic.topic}
-                    </h3>
-
-                    <span
-                      className={`text-sm ${
-                        topic.percentage < 50
-                          ? "text-red-400"
-                          : topic.percentage < 75
-                          ? "text-orange-400"
-                          : "text-green-400"
-                      }`}
-                    >
-                      {topic.percentage}%
-                    </span>
-
-                  </div>
-
-
-                  <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-
-                    <div
-                      className={`h-full rounded-full ${
-                        topic.percentage < 50
-                          ? "bg-red-400"
-                          : topic.percentage < 75
-                          ? "bg-orange-400"
-                          : "bg-green-400"
-                      }`}
-                      style={{
-                        width: `${topic.percentage}%`,
-                      }}
-                    />
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            ))}
-
-          </div>
-
-        </div>
-
-      )}
-
-
-      {/* ==================================================
-          TODAY'S PLAN
-      ================================================== */}
-
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 md:p-7">
-
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-7">
-
-          <div>
-
-            <p className="text-blue-400 text-xs font-semibold uppercase tracking-wide">
-              YOUR NEXT STEPS
-            </p>
-
-            <h2 className="text-2xl font-semibold text-white mt-1">
-              Today's study plan
-            </h2>
-
-            <p className="text-slate-400 text-sm mt-2">
-              {hasAssessment
-                ? "A focused session based on your latest assessment."
-                : "Complete your first assessment to build a personalized plan."}
-            </p>
-
-          </div>
-
-          <div className="px-3 py-2 rounded-lg bg-slate-800 text-slate-300 text-sm w-fit">
-            {hasAssessment
-              ? `${focusTopics.length} focus areas`
-              : "Not started"}
-          </div>
-
-        </div>
-
-
-        {hasAssessment ? (
-
-          <div className="space-y-3">
-
-            {focusTopics.map((topic, index) => (
-
-              <div
-                key={topic.topic}
-                className="flex items-center justify-between gap-4 bg-slate-800/70 hover:bg-slate-800 border border-transparent hover:border-slate-700 rounded-xl p-4 transition"
-              >
-
-                <div className="flex items-center gap-4">
+                <div className="mt-4 w-full h-2 bg-slate-800 rounded-full overflow-hidden">
 
                   <div
-                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      topic.percentage < 50
-                        ? "border-red-400/60"
-                        : topic.percentage < 75
-                        ? "border-orange-400/60"
-                        : "border-blue-400/60"
+                    className={`h-full rounded-full transition-all ${
+                      isWeak
+                        ? "bg-red-400"
+                        : isOkay
+                        ? "bg-orange-400"
+                        : "bg-green-400"
                     }`}
-                  >
-
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        topic.percentage < 50
-                          ? "bg-red-400"
-                          : topic.percentage < 75
-                          ? "bg-orange-400"
-                          : "bg-blue-400"
-                      }`}
-                    />
-
-                  </div>
-
-                  <div>
-
-                    <h3 className="text-white font-medium">
-                      {index === 0
-                        ? `Review ${topic.topic}`
-                        : `Practice ${topic.topic}`}
-                    </h3>
-
-                    <p className="text-slate-400 text-sm mt-1">
-                      {topic.percentage < 50
-                        ? "Start with the fundamentals"
-                        : topic.percentage < 75
-                        ? "Strengthen your understanding"
-                        : "Keep your skills sharp"}
-                    </p>
-
-                  </div>
+                    style={{
+                      width: `${topic.score}%`,
+                    }}
+                  />
 
                 </div>
 
-
-                <span
-                  className={`hidden sm:block text-xs font-medium ${
-                    topic.percentage < 50
-                      ? "text-red-400"
-                      : topic.percentage < 75
-                      ? "text-orange-400"
-                      : "text-blue-400"
-                  }`}
-                >
-                  {topic.percentage < 50
-                    ? "HIGH PRIORITY"
-                    : topic.percentage < 75
-                    ? "FOCUS"
-                    : "PRACTICE"}
-                </span>
+                <p className="text-slate-500 text-xs mt-3">
+                  {isWeak
+                    ? "Could use some practice"
+                    : isOkay
+                    ? "Getting there"
+                    : "Looking good"}
+                </p>
 
               </div>
-
-            ))}
-
-          </div>
-
-        ) : (
-
-          <div className="bg-slate-800/50 rounded-xl p-6 text-center">
-
-            <div className="text-3xl mb-3">
-              🎯
-            </div>
-
-            <h3 className="text-white font-medium">
-              Your plan starts with an assessment
-            </h3>
-
-            <p className="text-slate-400 text-sm mt-2 max-w-md mx-auto">
-              Answer a few questions and StudyRecover will
-              identify your weak areas and suggest what to
-              study next.
-            </p>
-
-          </div>
-
-        )}
-
-
-        {/* Tip */}
-
-        <div className="mt-6 pt-5 border-t border-slate-800">
-
-          <p className="text-slate-500 text-sm">
-            💡 Tip: Focus on one weak topic at a time. Consistent
-            practice beats trying to learn everything at once.
-          </p>
+            );
+          })}
 
         </div>
+
+      </section>
+
+      {/* ========================================
+          DETAILS
+      ======================================== */}
+
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div>
+          <RiskScore
+            results={assessmentResults}
+          />
+        </div>
+
+        <div>
+          <ProgressCard
+            results={assessmentResults}
+          />
+        </div>
+
+      </section>
+
+      {/* ========================================
+          ML RISK PREDICTION
+      ======================================== */}
+
+      <section className="mt-6">
+
+        <MLRiskCard
+          assessmentResults={assessmentResults}
+        />
+
+      </section>
+
+      {/* ========================================
+          WEAK TOPICS
+      ======================================== */}
+
+      <section className="mt-6">
+
+        <WeakTopics
+          results={assessmentResults}
+        />
+
+      </section>
+
+      {/* ========================================
+          TODAY'S PLAN
+      ======================================== */}
+
+      <section className="mt-6 bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-7">
+
+        <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">
+          A SIMPLE PLAN FOR TODAY
+        </p>
+
+        <h2 className="text-xl font-semibold text-white mt-2">
+          Small steps are enough.
+        </h2>
+
+        <p className="text-slate-500 text-sm mt-2">
+          You don't need to fix everything in one sitting.
+        </p>
+
+        <div className="mt-6 space-y-3">
+
+          {/* Step 1 */}
+
+          <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl">
+
+            <div className="w-9 h-9 shrink-0 rounded-full bg-slate-700 flex items-center justify-center text-sm font-medium text-slate-300">
+              1
+            </div>
+
+            <div>
+
+              <p className="text-white text-sm font-medium">
+                Review your weakest topic
+              </p>
+
+              <p className="text-slate-500 text-xs mt-1">
+                Start with{" "}
+                {weakestTopic?.name ||
+                  "your weakest area"}.
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* Step 2 */}
+
+          <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl">
+
+            <div className="w-9 h-9 shrink-0 rounded-full bg-slate-700 flex items-center justify-center text-sm font-medium text-slate-300">
+              2
+            </div>
+
+            <div>
+
+              <p className="text-white text-sm font-medium">
+                Practice a few questions
+              </p>
+
+              <p className="text-slate-500 text-xs mt-1">
+                Use the explanations to learn from mistakes.
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* Step 3 */}
+
+          <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl">
+
+            <div className="w-9 h-9 shrink-0 rounded-full bg-slate-700 flex items-center justify-center text-sm font-medium text-slate-300">
+              3
+            </div>
+
+            <div>
+
+              <p className="text-white text-sm font-medium">
+                Check your progress
+              </p>
+
+              <p className="text-slate-500 text-xs mt-1">
+                Come back after practice and see what's changed.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* ========================================
+          RETAKE
+      ======================================== */}
+
+      <div className="mt-8 mb-4 text-center">
+
+        <button
+          type="button"
+          onClick={onStartAssessment}
+          className="text-slate-500 hover:text-blue-400 text-sm transition-colors"
+        >
+          Retake assessment →
+        </button>
 
       </div>
 
