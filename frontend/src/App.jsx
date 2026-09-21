@@ -37,8 +37,11 @@ function App() {
   // ACTIVE PAGE
   // ============================================
 
-  const [activePage, setActivePage] =
-    useState("dashboard");
+  const [activePage, setActivePage] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pageParam = params.get("page");
+    return pageParam || "assessment";
+  });
 
   // ============================================
   // PRACTICE TOPIC
