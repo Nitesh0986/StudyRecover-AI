@@ -1,72 +1,80 @@
 # StudyRecover AI
 
-> **AI-Powered Personalized Learning Gap Detection and Recovery Planning Platform**
+<div align="center">
 
-StudyRecover AI is an educational platform designed to diagnose learning gaps, predict academic risk, and provide targeted recovery plans. Rather than generic test drills or static calendars, StudyRecover AI identifies specific conceptual deficiencies, estimates learning risk using machine learning, and guides learners through deliberate practice and progress tracking.
+![StudyRecover AI Banner](https://img.shields.io/badge/StudyRecover-AI%20Platform-3b82f6?style=for-the-badge&logo=openai&logoColor=white)
+
+**AI-Powered Learning Gap Detection and Recovery Planning Platform**
+
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Nitesh0986%2FStudyRecover--AI-181717?style=flat-square&logo=github)](https://github.com/Nitesh0986/StudyRecover-AI)
+[![React](https://img.shields.io/badge/Frontend-React%2019-61dafb?style=flat-square&logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Bundler-Vite%206-646cff?style=flat-square&logo=vite)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20v4-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![scikit-learn](https://img.shields.io/badge/ML-scikit--learn-f7931e?style=flat-square&logo=scikit-learn)](https://scikit-learn.org/)
+[![Vercel](https://img.shields.io/badge/Deployment-Vercel%20Ready-black?style=flat-square&logo=vercel)](https://vercel.com)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+
+[Features](#key-features) • [How It Works](#how-it-works) • [Tech Stack](#tech-stack) • [Quick Setup](#quick-start--local-setup) • [Vercel Deployment](#deployment-guide-vercel) • [API Reference](#api-reference)
+
+</div>
 
 ---
 
-## Overview
+## 📌 Overview
 
-In traditional study workflows, students often discover their weaknesses only after high-stakes examinations. Even when deficiencies are noticed, students struggle to identify which prerequisite concepts failed, how much time to spend on recovery, or whether their practice efforts are translating into actual concept mastery.
+In traditional study workflows, students often discover their weaknesses only after taking high-stakes examinations. Even when deficiencies are noticed, students struggle to identify which prerequisite concepts failed, how much time to dedicate to recovery, or whether their practice efforts are translating into actual concept mastery.
 
 **StudyRecover AI** addresses this challenge through a closed-loop learning diagnostic and recovery workflow:
-1. **Assess**: Diagnostic check-in across core curriculum topics.
+1. **Assess**: Diagnostic check-in across core curriculum topics (Normalization, Transactions & Concurrency, Relational Algebra & SQL).
 2. **Diagnose**: Rule-based learning gap calculation that computes topic mastery scores and study time recommendations.
-3. **Predict**: Machine-learning risk estimation assessing the probability of conceptual failure based on performance indicators.
-4. **Recover**: Prioritized recovery roadmap targeting the weakest topics first.
-5. **Practice**: Immediate feedback drills with explanations for every answer choice.
-6. **Track**: Continuous progress monitoring measuring score improvement over time.
+3. **Predict**: Machine-learning risk estimation using a Random Forest Classifier evaluating performance indicators and class confidence.
+4. **Recover**: Prioritized recovery roadmap targeting the weakest topics first with actionable steps.
+5. **Practice**: Immediate feedback drills with explanations for every answer choice and persistent tracking.
+6. **Track**: Continuous progress monitoring measuring longitudinal score improvement over time.
 
 ---
 
-## Problem Statement
+## 💡 Problem & Solution
 
-Learners encounter three primary obstacles during independent study:
-- **Lack of Diagnostic Clarity**: Knowing an overall score (e.g., 60%) does not tell the learner which specific topics or sub-topics caused the failure.
-- **Inefficient Time Allocation**: Students often review material they already understand or become overwhelmed trying to re-read entire textbooks.
-- **Unmeasured Practice Impact**: Standard question banks rarely track whether follow-up practice successfully closed the original learning gap.
-
----
-
-## Solution
-
-StudyRecover AI delivers a human-friendly, data-driven solution:
-- **Granular Learning Gap Analysis**: Computes weighted topic mastery combining assessment baseline performance (40%) and practice history (60%).
-- **Predictive Risk Assessment**: A trained Random Forest Classifier predicts whether a student is at High, Medium, or Low learning risk with an associated model confidence score.
-- **Adaptive Recovery Guidance**: Recommends targeted study times (15 to 45 minutes) and actionable study steps tailored to each student's current proficiency.
-- **Interactive Practice Loop**: Topic-specific question sets featuring instantaneous feedback and explanations that persist progress in browser storage.
+| The Problem | How StudyRecover AI Solves It |
+| :--- | :--- |
+| **Lack of Diagnostic Clarity**: Knowing an overall percentage (e.g. 60%) does not reveal which specific topics caused failure. | **Granular Gap Analysis**: Deconstructs scores into topic-level mastery combining baseline (40%) and practice (60%). |
+| **Inefficient Time Allocation**: Students review material they already know or feel overwhelmed re-reading entire textbooks. | **Adaptive Recommendations**: Recommends targeted study times (15 to 45 mins) tailored to the learner's risk level. |
+| **Unmeasured Practice Impact**: Standard question banks rarely track whether follow-up practice closed the gap. | **Longitudinal Tracking**: Computes trajectory deltas comparing initial assessment benchmarks with ongoing practice. |
+| **No Early Warning System**: Students don't know if they are heading toward academic failure before exams. | **Predictive ML Risk Engine**: Random Forest model classifies risk into *Low*, *Medium*, or *High Risk* with confidence metrics. |
 
 ---
 
-## Key Features
+## ✨ Key Features
 
-- 🧭 **10-Question Diagnostic Assessment**: Rapid baseline assessment evaluating foundational computer science / database topics (Normalization, Transactions, Relational Algebra).
-- 📊 **Dynamic Learning Gap Engine**: Real-time calculation of mastery scores, risk levels, recommended study durations, and improvement trends.
-- 🧠 **Machine Learning Risk Prediction**: FastAPI-backed scikit-learn classifier evaluating multi-feature learning profiles (assessment score, practice average, attempts, improvement delta).
-- 🎯 **Targeted Recovery Plan**: Topic prioritization ordering gaps by highest risk so learners address critical deficiencies first.
-- ✍️ **Focused Topic Practice**: Interactive quizzes with instant rationale explanations and multi-attempt performance tracking.
-- 📈 **Progress Dashboard**: Longitudinal overview comparing initial assessment benchmarks against cumulative practice scores.
-- 🌙 **Modern Human-Friendly UI**: Responsive dark theme built with Tailwind CSS, optimized for desktop, tablet, and mobile displays.
+- 🧭 **10-Question Diagnostic Assessment**: Rapid baseline assessment evaluating foundational computer science / database topics with database schema code previews.
+- 🎨 **Modern Dark UI (macOS & Stitch Inspired)**: Sleek terminal code preview cards with window control dots, pulsing AI status badge, glowing gradient progress bar, and checkmark option cards.
+- 🧠 **Supervised ML Risk Prediction**: FastAPI-backed scikit-learn Random Forest model evaluating multi-feature student activity vectors (`assessment_score`, `practice_average`, `practice_attempts`, `improvement`).
+- 🛡️ **Resilient Fallback Mode**: Built-in deterministic risk calculation fallback if the backend API server is offline or unreachable.
+- 🎯 **Targeted Recovery Plan**: Prioritizes learning gaps from highest to lowest risk so learners fix critical deficiencies first.
+- ✍️ **Focused Topic Practice**: Interactive quizzes with instant rationale explanations for correct and incorrect options.
+- 📱 **Fully Responsive Design**: Optimized for all viewports with desktop side navigation and mobile drawer top-bar menu.
+- 💾 **Zero-Config Client Persistence**: Browser LocalStorage persistence for answers, practice history, and assessment results.
 
 ---
 
-## How It Works
+## 🏗️ Architecture & Workflow
 
 ```text
 ┌─────────────────┐
-│   Assessment    │  --> 10 diagnostic questions across topics
+│   Assessment    │  --> 10 diagnostic questions across topics with code preview
 └────────┬────────┘
          │
          ▼
 ┌─────────────────────────┐
-│ Learning Gap Detection  │  --> Weighted mastery, study time & gap ranking
+│ Learning Gap Detection  │  --> Weighted topic mastery, study duration & gap ranking
 └────────┬────────────────┘
          │
          ▼
 ┌─────────────────────────┐
 │   ML Risk Prediction    │  --> FastAPI + Random Forest Classifier (Risk & Confidence)
-└────────┬────────────────┘
+└────────┬────────────────┘      (Resilient local fallback if backend is offline)
          │
          ▼
 ┌─────────────────────────┐
@@ -86,9 +94,7 @@ StudyRecover AI delivers a human-friendly, data-driven solution:
 
 ---
 
-## AI/ML Approach
-
-StudyRecover AI pairs a deterministic rule-based gap analysis engine with a supervised machine-learning classifier.
+## 🤖 AI / Machine Learning Approach
 
 ### 1. Feature Set
 The ML model evaluates four core student activity metrics:
@@ -105,9 +111,6 @@ The ML model evaluates four core student activity metrics:
   - `2`: High Risk (Critical gaps, persistent negative delta or low baseline)
 - **Output**: Predicted risk label alongside the model's highest class probability (`confidence` percentage).
 
-> [!NOTE]
-> The current model is trained on development benchmark datasets designed to reflect representative student mastery patterns. Accuracy claims apply to the curated validation distribution and provide directional risk classification for formative recovery planning.
-
 ### 3. Adaptive Mastery Scoring
 The frontend Learning Gap Engine calculates composite topic mastery using a weighted formulation:
 $$\text{Mastery Score} = (\text{Assessment Baseline} \times 0.4) + (\text{Practice Average} \times 0.6)$$
@@ -115,28 +118,24 @@ $$\text{Learning Risk} = \max(0, 100 - \text{Mastery Score})$$
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 ### Frontend
 - **React 19** — Component-driven reactive UI architecture
-- **Vite 8** — Fast bundler and development server
-- **Tailwind CSS 4** — Utility-first modern dark UI styling
+- **Vite 6** — Ultra-fast build tool and local dev server
+- **Tailwind CSS 4** — Modern utility-first styling with responsive dark theme
 - **HTML5 LocalStorage** — Resilient client-side persistence
 
-### Backend
+### Backend & Machine Learning
 - **FastAPI** — High-performance asynchronous Python REST API
 - **Uvicorn** — ASGI production server
 - **Pydantic v2** — Request payload modeling and validation
-- **CORS Middleware** — Secure multi-origin client support
-
-### Machine Learning
-- **Python 3.14**
 - **scikit-learn** — Random Forest Classifier implementation
-- **NumPy** — Matrix and array feature processing
+- **NumPy** — Feature matrix processing
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 StudyRecover-AI/
@@ -146,7 +145,6 @@ StudyRecover-AI/
 │   ├── main.py                   # FastAPI REST application & CORS setup
 │   ├── requirements.txt          # Python backend dependencies
 │   └── .env.example              # Environment variables template
-├── data/                         # Dataset assets
 ├── docs/
 │   ├── architecture.md           # Technical architecture and data flow
 │   ├── testing.md                # Verification plan and test checklist
@@ -154,7 +152,7 @@ StudyRecover-AI/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Assessment.jsx        # Diagnostic quiz component
+│   │   │   ├── Assessment.jsx        # Diagnostic quiz component (Stitch dark UI)
 │   │   │   ├── AssessmentResult.jsx  # Diagnostic summary & topic breakdown
 │   │   │   ├── Dashboard.jsx         # Main learning space overview
 │   │   │   ├── MLRiskCard.jsx        # FastAPI ML risk card
@@ -163,7 +161,7 @@ StudyRecover-AI/
 │   │   │   ├── ProgressCard.jsx      # Assessment progress summary card
 │   │   │   ├── RecoveryPlan.jsx      # Adaptive study roadmap & recommendations
 │   │   │   ├── RiskScore.jsx         # Circular risk visualization card
-│   │   │   ├── Sidebar.jsx           # Responsive desktop/mobile navigation
+│   │   │   ├── Sidebar.jsx           # Responsive desktop & mobile navigation
 │   │   │   └── WeakTopics.jsx        # Dynamic prioritized learning gaps
 │   │   ├── utils/
 │   │   │   ├── learningGapEngine.js  # Rule-based mastery & study time engine
@@ -171,132 +169,144 @@ StudyRecover-AI/
 │   │   ├── App.jsx                   # Root application state & router
 │   │   ├── main.jsx                  # React DOM entrypoint
 │   │   └── index.css                 # Tailwind CSS styles
-│   ├── package.json
-│   └── vite.config.js
-├── .gitignore                    # Root repository ignore rules
-└── README.md
+│   ├── vercel.json               # Frontend SPA rewrites configuration
+│   ├── package.json              # Dependencies & build scripts
+│   └── vite.config.js            # Vite build configuration
+├── vercel.json                   # Root deployment configuration
+├── .gitignore                    # Git ignore rules
+└── README.md                     # Project documentation
 ```
 
 ---
 
-## Installation & Setup
+## 🚀 Quick Start / Local Setup
 
 ### Prerequisites
-- **Node.js**: v18+ (tested on Node v24)
+- **Node.js**: v18+ (tested on Node v20/v24)
 - **Python**: v3.10+ (tested on Python 3.14)
 - **npm**: v9+
 
-### 1. Frontend Setup
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Nitesh0986/StudyRecover-AI.git
+cd StudyRecover-AI
+```
 
+### 2. Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+The frontend will start at **`http://localhost:5173`**.
 
-The frontend application will start at `http://localhost:5173` (or `http://localhost:5174`).
-
-### 2. Backend Setup
-
-In a separate terminal:
-
+### 3. Backend Setup
+In a new terminal:
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
-
-The API will be available at `http://127.0.0.1:8000`. Interactive OpenAPI documentation can be viewed at `http://127.0.0.1:8000/docs`.
+- API Base URL: `http://127.0.0.1:8000`
+- Interactive OpenAPI Docs: `http://127.0.0.1:8000/docs`
 
 ---
 
-## API Reference
+## ☁️ Deployment Guide (Vercel)
+
+This repository is pre-configured with root and frontend `vercel.json` files for automatic 1-click deployment on **Vercel**.
+
+### Step 1: Import Repository
+1. Log in to [Vercel](https://vercel.com).
+2. Go to [https://vercel.com/new](https://vercel.com/new).
+3. Under **Import Git Repository**, select **`StudyRecover-AI`** (or paste `https://github.com/Nitesh0986/StudyRecover-AI`).
+4. Click **Import**.
+
+### Step 2: Configure & Deploy
+- **Project Name**: `studyrecover-ai` (lowercase letters and hyphens only).
+- **Framework Preset**: `Vite` (automatically detected).
+- **Root Directory**: Leave as default (`./`), or set to `frontend` if importing just the frontend directory.
+- Click **Deploy**.
+
+> The root `vercel.json` automatically runs `cd frontend && npm install && npm run build` and serves the production bundle from `frontend/dist` with client-side SPA routing rewrites.
+
+---
+
+## 📡 API Reference
 
 ### `GET /`
-Returns service status.
-- **Response**:
-  ```json
-  {
-    "message": "StudyRecover AI Backend is running",
-    "status": "success"
-  }
-  ```
+Service health check and introductory message.
+```json
+{
+  "message": "StudyRecover AI Backend is running",
+  "status": "success"
+}
+```
 
 ### `GET /health`
 Liveness probe.
-- **Response**:
-  ```json
-  {
-    "status": "healthy",
-    "service": "StudyRecover AI"
-  }
-  ```
+```json
+{
+  "status": "healthy",
+  "service": "StudyRecover AI"
+}
+```
 
 ### `POST /api/predict-risk`
-Calculates student learning risk using the trained Random Forest model.
-- **Request Body**:
-  ```json
-  {
-    "assessment_score": 50.0,
-    "practice_average": 45.0,
-    "practice_attempts": 2,
-    "improvement": -5.0
+Calculates student learning risk using the trained Random Forest classifier.
+
+**Request Payload:**
+```json
+{
+  "assessment_score": 50.0,
+  "practice_average": 45.0,
+  "practice_attempts": 2,
+  "improvement": -5.0
+}
+```
+
+**Response Payload:**
+```json
+{
+  "success": true,
+  "prediction": {
+    "risk": "High Risk",
+    "confidence": 86.0
   }
-  ```
-- **Response**:
-  ```json
-  {
-    "success": true,
-    "prediction": {
-      "risk": "High Risk",
-      "confidence": 86.0
-    }
-  }
-  ```
+}
+```
 
 ---
 
-## Usage Guide
+## 🧪 Testing & Verification
 
-1. **Dashboard Check-In**: Open the application. On first launch, the dashboard displays an empty state welcoming the user to begin their diagnostic check-in.
-2. **Take Assessment**: Click **"Take Assessment"** and answer the 10 questions.
-3. **Review Results**: View the summary breakdown highlighting your strongest topic and weakest topic. Click **"Go to Dashboard"**.
-4. **Inspect Recovery Plan**: From the dashboard banner or sidebar, navigate to **Recovery Plan**. View your ML-estimated risk score and suggested study duration for each topic.
-5. **Practice Weak Topics**: Click **"Practice [Topic] →"** to answer focused questions with real-time feedback and detailed explanations.
-6. **Monitor Progress**: Visit the **Progress** page to view your growth trajectory and updated mastery metrics.
+Run these commands to verify code quality and production builds:
 
----
+```bash
+# Verify frontend linting
+cd frontend
+npm run lint
 
-## Screenshots
+# Verify frontend production build
+npm run build
 
-> *Screenshots demonstrating the desktop and mobile interface:*
-
-| Dashboard Overview | Recovery Plan & ML Risk |
-| :---: | :---: |
-| *(Add Dashboard Screenshot)* | *(Add Recovery Plan Screenshot)* |
-
-| Practice Session | Progress Trajectory |
-| :---: | :---: |
-| *(Add Practice Screenshot)* | *(Add Progress Screenshot)* |
+# Verify backend tests (if pytest installed)
+cd ../backend
+python -m pytest
+```
 
 ---
 
-## Future Scope
+## 🔮 Future Roadmap
 
-- 📚 Multi-subject curriculum support (Operating Systems, Algorithms, Computer Networks).
-- 📄 Syllabus PDF upload with automatic topic extraction and question generation.
-- 📈 Time-series mastery trend forecasting across academic semesters.
-- 🔔 Spaced repetition schedule notifications for retention reinforcement.
-- 👥 Multi-user authentication and teacher/mentor review dashboards.
-
----
-
-## Team
-
-- **StudyRecover AI Team** — Finalized for Horizon 2026 Submission.
+- 📚 **Multi-Subject Expansion**: Operating Systems, Computer Networks, and System Design.
+- 📄 **Syllabus & PDF Ingestion**: Automatic learning gap diagnosis from course syllabus uploads.
+- 📈 **Time-Series Forecasting**: Longitudinal retention analysis across entire semesters.
+- 🔔 **Spaced Repetition Scheduler**: Automated retention notifications before concepts decay.
+- 👥 **Mentor & Instructor Portal**: Class-level risk heatmaps for educators.
 
 ---
 
-## License
+## 📄 License
 
-Developed as an educational submission project. All rights reserved.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
